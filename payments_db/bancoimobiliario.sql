@@ -11,8 +11,8 @@ create database bancoimobiliario;
 
 
 create table pessoa (
-    id bigint primary key,
-        -- CPF ou CNPJ da pessoa
+    -- CPF ou CNPJ da pessoa
+    id bigint,
 
     tipo varchar(32) not null,
 
@@ -21,7 +21,12 @@ create table pessoa (
 
     telefone bigint not null,
     endereco varchar(255) not null,
-    nome varchar(255) not null
+    nome varchar(255) not null,
+
+    -- data de inserção da pessoa nesse banco de dados
+    data_horario_criacao TIMESTAMP not null,
+
+    primary key (id)
 );
 
 create table conta (
@@ -29,20 +34,22 @@ create table conta (
     agencia bigint,
     conta bigint,
 
-    primary key (banco, agencia, conta),
-
     id_pessoa bigint not null,
+
+    saldo money not null,
+
+    data_horario_criacao TIMESTAMP not null,
+
+    primary key (banco, agencia, conta),
 
     foreign key (id_pessoa)
         references pessoa (id)
         on update cascade
-        on delete no action,
-
-    saldo money not null
+        on delete no action
 );
 
 create table cartao (
-    numero bigint primary key,
+    numero bigint,
 
     nome varchar(255) not null,
     data_expiracao date not null,
@@ -51,20 +58,24 @@ create table cartao (
     telefone bigint not null,
     
     id_pessoa bigint not null,
-
-    foreign key (id_pessoa)
-        references pessoa (id)
-        on update cascade
-        on delete no action,
     
     tipo varchar(32) not null,
 
     check (tipo in ('débito',
                     'crédito')),
 
+    data_horario_criacao TIMESTAMP not null,
+
     banco bigint not null,
     agencia bigint not null,
     conta bigint not null,
+
+    primary key (numero),
+    
+    foreign key (id_pessoa)
+        references pessoa (id)
+        on update cascade
+        on delete no action,
 
     foreign key (banco, agencia, conta)
         references conta (banco, agencia, conta)
@@ -73,19 +84,21 @@ create table cartao (
 );
 
 create table cartao_credito (
-    numero_cartao bigint primary key,
-
-    foreign key (numero_cartao)
-        references cartao (numero)
-        on update cascade
-        on delete no action,
+    numero_cartao bigint,
 
     estado_cartao varchar(32) not null
 
     check (estado_cartao in ('liberado',
                              'bloqueado')),
 
-    credito_disponivel money not null
+    credito_disponivel money not null,
+
+    primary key (numero_cartao),
+
+    foreign key (numero_cartao)
+        references cartao (numero)
+        on update cascade
+        on delete no action
 );
 
 create table lancamento_conta ( -- conta tem lançamento
@@ -95,37 +108,41 @@ create table lancamento_conta ( -- conta tem lançamento
 
     id bigint,
 
+    valor money not null,
+
+    data_horario_compensacao TIMESTAMP not null,
+
     primary key (banco, agencia, conta, id),
 
     foreign key (banco, agencia, conta)
         references conta (banco, agencia, conta)
         on update cascade
-        on delete no action,
-
-    valor money not null,
-
-    data_horario_compensacao TIMESTAMP not null
+        on delete no action
 );
 
 create table lancamento_cartao ( -- cartão de cŕedito tem lançamento
     numero_cartao bigint,
 
-    foreign key (numero_cartao)
-        references cartao_credito (numero_cartao)
-        on update cascade
-        on delete no action,
+    id bigint,
 
     valor money not null,
 
     prazo date not null,
 
-    data_horario_pagamento TIMESTAMP
-        default null
     -- data_horario_pagamento é null enquanto o valor não for pago
+    data_horario_pagamento TIMESTAMP
+        default null,
+
+    primary key (numero_cartao, id),
+    
+    foreign key (numero_cartao)
+        references cartao_credito (numero_cartao)
+        on update cascade
+        on delete no action
 );
 
 create table log_atividades (
-    id bigint not null primary key,
+    id bigint primary key,
 
     tipo_atividade varchar(255) not null,
     data_horario TIMESTAMP not null,
