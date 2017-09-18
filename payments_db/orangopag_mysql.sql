@@ -2,6 +2,8 @@
 -- usando PostgreSQL.
 -- tipo TIMESTAMP no PostgreSQL é o DATETIME do MySQL
 
+-- em vez de restrição de 'check' a gente poderia usar o tipo enum para alguns campos
+
 -- usar psql e executar o comando '\i orangopag.sql'
 -- usar mysql e executar o comando 'source orangopag.sql'
 create database orangopag;
@@ -36,12 +38,14 @@ create table loja (
     telefone varchar(255) not null,
     endereco varchar(255) not null,
 
-    -- quando a loja apaga a conta, o registro é desativado
+    -- a loja tem que ativar a conta através do email do admin responsável
     estado_registro varchar(255) not null
-        default 'ativado',
+        default 'desativado',
 
-    check (estado_registro in ('ativado',
-                               'desativado')),
+    -- a loja pode deletar a conta
+    check (estado_registro in ('desativado',
+                               'ativado',
+                               'deletado')),
 
     numero_cartao bigint not null,
 
@@ -91,11 +95,13 @@ create table conta_bancaria_loja (
 create table admin (
     usuario varchar(255),
 
-    -- quando o admin apaga sua conta, o registro é desativado
-    estado_registro varchar(255) not null default 'ativado',
+    -- o admin tem que ativar a conta usando seu email
+    estado_registro varchar(255) not null default 'desativado',
 
-    check (estado_registro in ('ativado',
-                               'desativado')),
+    -- o admin pode deletar a sua conta
+    check (estado_registro in ('desativado',
+                               'ativado',
+                               'deletado')),
 
     nome varchar(255) not null,
     cpf bigint not null,
@@ -216,12 +222,14 @@ create table pagamento_cartao (
 
 -- tudo será logado
 create table log_atividades (
-    id bigint primary key,
+    id serial primary key,
+    data_horario datetime
 
     tipo_atividade varchar(255) not null,
-    data_horario datetime not null,
 
-    dados_atividade text not null,
+    -- a partir de MySQL 5.7 ??
+    dados_atividade json not null,
+    
     mensagem_erro varchar(255)
         default null
 );
