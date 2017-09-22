@@ -229,7 +229,7 @@ create table pagamento_cartao (
 -- tudo será logado. os erros antigos podem ser deletados. mas os não-erros nunca poderão ser deletados!!
 create table log_atividades (
     id serial primary key,
-    data_horario datetime
+    data_horario datetime,
 
     tipo_atividade varchar(255) not null,
 
