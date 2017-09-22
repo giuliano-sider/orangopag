@@ -65,6 +65,9 @@ create table acesso_loja (
     url_msgbox_api varchar(255) unique not null,
         -- mensagens sobre eventos de pagamento serão POSTadas aqui pelo OrangoPag
     
+    codigo_verificacao varchar(255) unique not null,
+        -- para ativar a conta da loja através do email do admin responsavel
+
     usuario_admin_responsavel varchar(255) not null,
 
     primary key (cnpj_loja),
@@ -122,6 +125,9 @@ create table acesso_admin (
 
     senha_admin varchar(255) not null,
     email_admin varchar(255) not null,
+
+    -- para ativar a conta do admin a partir de um email valido
+    codigo_verificacao varchar(255) unique,
 
     primary key (usuario_admin),
 
@@ -220,7 +226,7 @@ create table pagamento_cartao (
 
 
 
--- tudo será logado
+-- tudo será logado. os erros antigos podem ser deletados. mas os não-erros nunca poderão ser deletados!!
 create table log_atividades (
     id serial primary key,
     data_horario datetime
