@@ -145,7 +145,7 @@ alter table acesso_loja add foreign key (usuario_admin_responsavel)
 
 
 create table transacao ( -- loja requisita transacao
-    id bigint,
+    id serial,
     cnpj_loja bigint,
 
     estado_transacao varchar(32) not null
@@ -175,7 +175,7 @@ create table transacao ( -- loja requisita transacao
 
 create table parcela ( -- transação é feita de parcelas
     prazo datetime,
-    id_transacao bigint,
+    id_transacao serial,
     cnpj_loja bigint,
 
     valor decimal(15,2) not null,
@@ -193,7 +193,7 @@ create table parcela ( -- transação é feita de parcelas
 );
 
 create table pagamento_boleto (
-    id_transacao bigint,
+    id_transacao serial,
     cnpj_loja bigint,
 
     nome_sacado varchar(255),
@@ -208,7 +208,7 @@ create table pagamento_boleto (
 );
 
 create table pagamento_cartao (
-    id_transacao bigint,
+    id_transacao serial,
     cnpj_loja bigint,
 
     numero_cartao bigint not null,

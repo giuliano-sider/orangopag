@@ -400,6 +400,56 @@ $devolucao1_req2 = array(
 
 );
 
+$req3_nova_transacao_exemplo_cartao_credito = array(
+    // id será gerado pelo OrangoPag
+    'cnpj_loja' => '00.000.001/0000-55',
+    // estado transação será mantido pelo OrangoPag
+    'tipo_pagamento' => 'cartão de débito',
+    'parcelas' => array(array('prazo' => '01/10/2017',
+                              'valor' => '717171.71')),
+    'info_pagamento' => array('numero_cartao' => '7171 7171 7171 7171',
+                              'nome_cartao' => 'Churros do Seu Madruga Ltda',
+                              'endereco_cobranca' => 'Rua Osiris, 71\n'
+                                                   . 'Luxor, Egito',
+                              'tipo' => 'crédito',
+                              'telefone_cartao' => '19 87654321',
+                              'data_expiracao_mes' => '08',
+                              'data_expiracao_ano' => '2036',
+                              'codigo_verificacao' => '717'),
+    'codigo_acesso_api' => 'fu3hf3834fb38b8u347hf29fh238fhfh'
+);
+$devolucao1_req2 = array(
+
+);
+
+$req4_nova_transacao_exemplo_cartao_credito_prazo = array(
+    // id será gerado pelo OrangoPag
+    'cnpj_loja' => '00.000.001/0000-55',
+    // estado transação será mantido pelo OrangoPag
+    'tipo_pagamento' => 'cartão de débito',
+    'parcelas' => array(array('prazo' => '01/10/2017',
+                              'valor' => '717171.71'),
+                        array('prazo' => '01/11/2017',
+                              'valor' => '717171.71'),
+                        array('prazo' => '01/12/2017',
+                              'valor' => '717171.71'),
+                        array('prazo' => '01/01/2018',
+                              'valor' => '717171.71')),
+    'info_pagamento' => array('numero_cartao' => '7171 7171 7171 7171',
+                              'nome_cartao' => 'Churros do Seu Madruga Ltda',
+                              'endereco_cobranca' => 'Rua Osiris, 71\n'
+                                                   . 'Luxor, Egito',
+                              'tipo' => 'crédito',
+                              'telefone_cartao' => '19 87654321',
+                              'data_expiracao_mes' => '08',
+                              'data_expiracao_ano' => '2036',
+                              'codigo_verificacao' => '717'),
+    'codigo_acesso_api' => 'fu3hf3834fb38b8u347hf29fh238fhfh'
+);
+$devolucao1_req2 = array(
+
+);
+
 
 
 function create_transaction($transacao) {
