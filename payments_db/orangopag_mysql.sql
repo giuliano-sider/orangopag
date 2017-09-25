@@ -198,6 +198,7 @@ create table pagamento_boleto (
 
     nome_sacado varchar(255),
     cpf_sacado bigint,
+    path_pdf varchar(255) unique not null,
 
     primary key (id_transacao, cnpj_loja),
 

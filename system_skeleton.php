@@ -261,7 +261,7 @@ $loja_exemplo = array(
     'endereco' => 'Rua Osiris, 444\n'
                 . 'Luxor, Egito',
     // nos é que geramos... 'codigo_acesso_api' => 'a vinganca nunca eh plena mata a alma e envenena',
-    'url_msgbox_api' => 'http://churros.madruga.com.mx/api_inbox' // para mensagens de retorno do api
+    'url_msgbox_api' => 'https://churros.madruga.com.mx/api_inbox' // para mensagens de retorno do api
     
     // info para contas a pagar da loja
     'cartao' => array('numero_cartao' => '7171 7171 7171 7171',
@@ -375,8 +375,14 @@ $req1_nova_transacao_exemplo_boleto = array(
     'codigo_acesso_api' => 'fu3hf3834fb38b8u347hf29fh238fhfh'
 );
 $devolucao1_req1 = array(
-
+    'id_transacao' => '13112938243243',
+    'estado_transacao' => 'aprovado',
+    'data_horario_criacao' => '2017-09-25 14:27:27',
+    'parcelas' => array(array('prazo' => '01/10/2017',
+                              'valor' => '7171.71',
+                              'data_horario_pagamento' => null)),
 );
+// link para o PDF do boleto é /pdf_boleto?cnpj_loja=adada&id_transacao=312311&codigo_acesso_api=23123131
 
 $req2_nova_transacao_exemplo_cartao_debito = array(
     // id será gerado pelo OrangoPag
@@ -404,7 +410,7 @@ $req3_nova_transacao_exemplo_cartao_credito = array(
     // id será gerado pelo OrangoPag
     'cnpj_loja' => '00.000.001/0000-55',
     // estado transação será mantido pelo OrangoPag
-    'tipo_pagamento' => 'cartão de débito',
+    'tipo_pagamento' => 'cartão de crédito',
     'parcelas' => array(array('prazo' => '01/10/2017',
                               'valor' => '717171.71')),
     'info_pagamento' => array('numero_cartao' => '7171 7171 7171 7171',
@@ -418,7 +424,7 @@ $req3_nova_transacao_exemplo_cartao_credito = array(
                               'codigo_verificacao' => '717'),
     'codigo_acesso_api' => 'fu3hf3834fb38b8u347hf29fh238fhfh'
 );
-$devolucao1_req2 = array(
+$devolucao1_req3 = array(
 
 );
 
@@ -426,7 +432,7 @@ $req4_nova_transacao_exemplo_cartao_credito_prazo = array(
     // id será gerado pelo OrangoPag
     'cnpj_loja' => '00.000.001/0000-55',
     // estado transação será mantido pelo OrangoPag
-    'tipo_pagamento' => 'cartão de débito',
+    'tipo_pagamento' => 'cartão de crédito à prazo',
     'parcelas' => array(array('prazo' => '01/10/2017',
                               'valor' => '717171.71'),
                         array('prazo' => '01/11/2017',
@@ -446,15 +452,79 @@ $req4_nova_transacao_exemplo_cartao_credito_prazo = array(
                               'codigo_verificacao' => '717'),
     'codigo_acesso_api' => 'fu3hf3834fb38b8u347hf29fh238fhfh'
 );
-$devolucao1_req2 = array(
-
+$devolucao1_req4 = array(
+    'id_transacao' => '13112938213',
+    'estado_transacao' => 'aprovado',
+    'data_horario_criacao' => '2017-09-25 14:31:27',
+    'parcelas' => array(array('prazo' => '01/10/2017',
+                              'valor' => '717171.71',
+                              'data_horario_pagamento' => null),
+                        array('prazo' => '01/11/2017',
+                              'valor' => '717171.71',
+                              'data_horario_pagamento' => null),
+                        array('prazo' => '01/12/2017',
+                              'valor' => '717171.71',
+                              'data_horario_pagamento' => null),
+                        array('prazo' => '01/01/2018',
+                              'valor' => '717171.71',
+                              'data_horario_pagamento' => null))
 );
 
+$msg_unauthorized_request = "Erro: requisição de pagamento não autorizada";
+$msg_invalid_payment_type = "Erro: 'tipo_pagamento' deve ser um dos valores abaixo:\n"
+                          . "\t1. 'boleto'\n"
+                          . "\t2. 'cartão de débito\n"
+                          . "\t3. 'cartão de crédito'\n"
+                          . "\t4. 'cartão de crédito à prazo'";
 
+function create_transaction(array $transacao) {
+    if ( ($loja = get_loja_by_cnpj($transacao['cnpj_loja'])) == NULL) {
+        log_error_and_die(array('message' => $msg_unauthorized_request, 'activity' => 'create_transaction',
+                                'data' => $transacao,
+                                'error_type' => 'invalid_data_for_api_request'));
+    }
+    if ($transacao['codigo_acesso_api'] != $loja['codigo_acesso_api']) {
+        log_error_and_die(array('message' => $msg_unauthorized_request, 'activity' => 'create_transaction',
+                                'data' => $transacao,
+                                'error_type' => 'invalid_data_for_api_request'));
+    }
+    if ($transacao['tipo_pagamento'] == 'boleto') {
+        // checar: boleto deve ter uma única parcela.
+        $boleto = bank_generate_boleto(array('sacado' => $transacao['info_pagamento'],
+                                             'beneficiario' => $loja['conta_bancaria'],
+                                             'valor' => $transacao['parcelas'][0]['valor'],
+                                             'prazo' => $transacao['parcelas'][0]['prazo']));
+        // ...
+    } elseif ($transacao['tipo_pagamento'] == 'cartão de débito') {
 
-function create_transaction($transacao) {
+    } elseif ($transacao['tipo_pagamento'] == 'cartão de crédito') {
+
+    } elseif ($transacao['tipo_pagamento'] == 'cartão de crédito à prazo') {
+
+    } else {
+        log_error_and_die(array('message' => $msg_invalid_payment_type, 'activity' => 'create_transaction',
+                                'data' => $transacao,
+                                'error_type' => 'invalid_data_for_api_request'));
+    }
+    /* se chegamos aqui, reportar sucesso */
 
 }
+
+function get_transactions_by_loja(string $cnpj_loja, array $filtros = NULL) {
+
+}
+
+function consulta_transacao(string $cnpj_loja, string $id_transacao) {
+
+}
+
+function cancela_transacao(string $cnpj_loja, string $id_transacao) {
+
+}
+
+
+
+
 
 /* pára o processamento do request, loga o que aconteceu, e reporta um erro ao cliente */
 function log_error_and_die(array $error_report) {
@@ -489,3 +559,8 @@ function log_sucess(array $log) {
 
     execute_db_query($query);
 }
+
+
+/* funções do banco imobiliário */
+
+function bank_generate_boleto
